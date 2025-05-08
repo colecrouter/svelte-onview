@@ -1,58 +1,71 @@
-# Svelte library
+# svelte-inview
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
+svelte-inview is an ultra-lightweight library that lets you effortlessly animate elements when they come in/out of view.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+[View Demo](https://colecrouter.github.io/svelte-inview)
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Installation
 
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
+npm i -D svelte-inview
 ```
 
-## Developing
+## Usage
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+svelte-inview has three main ways to animate elements when the enter or exit the viewport:
 
-```bash
-npm run dev
+1. **Svelte Transitions**
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+Use the built-in Svelte transitions. You can use any of the built-in transitions or create your own.
+
+```svelte
+<script>
+  import { fade } from 'svelte/transition';
+  import { inview } from 'svelte-inview';
+</script>
+<div use:inview={{ transition: { animation: fade, params: { duration: 800 }, threshold: 0.3 } }}>
+  This element will fade in when it enters the viewport and fade out when it exits.
+</div>
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+svelte-inview will automatically apply the correct transition in each state.
 
-## Building
+2. **CSS Classes**
 
-To build your library:
+Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
 
-```bash
-npm run package
+```svelte
+<div use:inview={{ class: 'fade-in-out', transition: { threshold: 0.5 } }}>
+  This element will fade in when it enters the viewport and fade out when it exits.
+</div>
+<style>
+  div {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+  }
+  .fade-in-out {
+    opacity: 1;
+  }
+</style>
 ```
 
-To create a production version of your showcase app:
+—just remember to set the initial state in your CSS.
 
-```bash
-npm run build
+3. **Custom Callbacks**
+You can also pass callback functions, and trigger your own side-effects.
+
+```svelte
+<div use:inview={{ callbacks: { enter: () => console.log('enter'), exit: () => console.log('exit') } }}>
+  This element will log to the console when it enters and exits the viewport.
+</div>
 ```
 
-You can preview the production build with `npm run preview`.
+Lastly, you can also use separate parameters for entering and exiting transitions:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
-
-## Publishing
-
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
-
-To publish your library to [npm](https://www.npmjs.com):
-
-```bash
-npm publish
+```svelte
+<div use:inview={{ in: { animation: fly, params: { duration: 200 }, threshold: 0.5 } }}>
+  This element will fade in when it enters the viewport and fade out when it exits.
+</div>
 ```
+
+For an extensive list of options, check out the [type declarations](src\lib\types.ts).
