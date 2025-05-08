@@ -46,10 +46,24 @@ export const inview: Action<HTMLElement, InViewOptions<Transition, Transition>> 
                     if (inCfg && desiredState === "in") {
                         cleanupFrame();
                         cleanupFrame = runTransition(node, inCfg, "in");
+                        options.callbacks?.enter?.(node);
+                        if (options.class) {
+                            const classes = Array.isArray(options.class) ? options.class : [options.class];
+                            for (const cls of classes) {
+                                node.classList.add(cls);
+                            }
+                        }
                         if (once) observer?.disconnect();
                     } else if (outCfg && desiredState === "out") {
                         cleanupFrame();
                         cleanupFrame = runTransition(node, outCfg, "out");
+                        options.callbacks?.exit?.(node);
+                        if (options.class) {
+                            const classes = Array.isArray(options.class) ? options.class : [options.class];
+                            for (const cls of classes) {
+                                node.classList.remove(cls);
+                            }
+                        }
                         // Don't disconnect on the exiting animation
                         // In all likelihood, it will trigger before the intro animation
                     }

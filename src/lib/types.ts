@@ -49,4 +49,26 @@ export type InViewOptions<InP extends Transition, OutP extends Transition | unde
 
     /** {@link https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#the_intersection_root_and_root_margin} */
     rootMargin?: string;
+
+    /** entering animation, equivalent to `in:<transition>` directive */
+    in?: unknown;
+
+    /** exiting animation, equivalent to `out:<transition>` directive */
+    out?: unknown;
+
+    /** dual animation, equivalent to `transition:<transition>` directive */
+    transition?: unknown;
+
+    /** CSS classes to add/remove when the element enters/exits view  */
+    class?: string | string[];
+
+    /** callbacks to run when the element enters/exits view */
+    callbacks?: Partial<Record<"enter" | "exit", (node: Element) => void>>;
+
+    /** element for the IntersectionObserver root
+     * {@link https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#the_intersection_root_and_root_margin} */
+    root?: Element | null;
+
+    /** substitute node for the IntersectionObserver target */
+    target?: Element | null;
 };

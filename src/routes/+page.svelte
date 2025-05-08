@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type InViewOptions, inview } from '$lib/index.js';
+    import { inview } from '$lib/index.js';
     import { fade, fly } from 'svelte/transition';
 
     // generate some demo cards
@@ -39,6 +39,10 @@
                         threshold: 0,
                     },
                     once: false,
+                    class: 'visible',
+                    callbacks: {
+                        enter: () => console.log('Entered!'),
+                    },
                 }}>
                 <h2>{card.title}</h2>
                 <p>{card.body}</p>
