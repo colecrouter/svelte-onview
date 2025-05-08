@@ -2,13 +2,14 @@ import type { InViewConfig, Transition } from "./types.js";
 
 export function runTransition<T extends Transition>(
     node: HTMLElement,
-    cfg: InViewConfig<T>,
+    cfg: InViewConfig,
     direction: "in" | "out",
 ): () => void {
     // 1) snapshot the element’s inline style so we can restore it later
     const originalStyle = node.getAttribute("style");
 
     // 2) call the user’s transition fn
+    if (!cfg.animation) return () => {};
     const {
         delay = 0,
         duration = 300,
@@ -58,6 +59,34 @@ export function runTransition<T extends Transition>(
     return () => {
         cancelAnimationFrame(rafId);
         clearTimeout(timeoutId);
+        if (originalStyle != null) {
+            node.setAttribute("style", originalStyle);
+        } else {
+            node.removeAttribute("style");
+        }
+    };
+}
+
+export function runFinalState<T extends Transition>(
+    node: HTMLElement,
+    cfg: InViewConfig,
+    direction: "in" | "out",
+): () => void {
+    // 1) snapshot the element’s inline style so we can restore it later
+    const originalStyle = node.getAttribute("style");
+
+    // 2) call the user’s transition fn
+    if (!cfg.animation) return () => {};
+    const { css, tick } = cfg.animation(node, cfg.params, { direction });
+
+    // apply the "initial" frame immediately
+    const t0 = direction === "in" ? 1 : 0;
+    const u0 = 1 - t0;
+    if (css) node.style.cssText = css(t0, u0);
+    if (tick) tick(t0, u0);
+
+    // cleanup: restore original style
+    return () => {
         if (originalStyle != null) {
             node.setAttribute("style", originalStyle);
         } else {

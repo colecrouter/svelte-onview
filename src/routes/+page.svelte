@@ -31,17 +31,18 @@
                     in: {
                         animation: fly,
                         params: { distance: 40, duration: 500 },
-                        threshold: 1,
+                        threshold: 0,
                     },
                     out: {
                         animation: fly,
                         params: { distance: 40, duration: 300 },
-                        threshold: 0,
+                        threshold: 0.9,
                     },
                     once: false,
                     class: 'visible',
                     callbacks: {
                         enter: () => console.log('Entered!'),
+                        exit: () => console.log('Exited!'),
                     },
                 }}>
                 <h2>{card.title}</h2>

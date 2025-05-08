@@ -7,13 +7,7 @@ export type Transition = (
     options: { direction: "in" | "out" | "both" },
 ) => TransitionConfig;
 
-export interface InViewConfig<T extends Transition> {
-    /** animation to run */
-    animation: T;
-
-    /** params to be passed to the animation */
-    params?: Parameters<T>[1];
-
+export type InViewConfig = {
     /**
      * {@link https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#thresholds}
      *
@@ -27,18 +21,29 @@ export interface InViewConfig<T extends Transition> {
      * out: 1 // will disappear when the entire element is visible
      */
     threshold?: number;
-}
-
-export type InViewOptions<InP extends Transition, OutP extends Transition | undefined = undefined> = (
+} & (
     | {
-          in?: InP extends Transition ? InViewConfig<InP> : never;
-          out?: OutP extends Transition ? InViewConfig<OutP> : InViewConfig<InP>;
+          /** animation to run; required if provided */
+          animation: Transition;
+          /** params to be passed to the animation; optional */
+          params?: Parameters<Transition>[1];
+      }
+    | {
+          animation?: undefined;
+          params?: undefined;
+      }
+);
+
+export type InViewOptions<InP extends Transition | undefined, OutP extends Transition | undefined = undefined> = (
+    | {
+          in?: InP extends Transition ? InViewConfig : never;
+          out?: OutP extends Transition ? InViewConfig : InViewConfig;
           transition?: never;
       }
     | {
           in?: never;
           out?: never;
-          transition: InP extends Transition ? InViewConfig<InP> : never;
+          transition: InP extends Transition ? InViewConfig : never;
       }
 ) & {
     /**
@@ -71,4 +76,10 @@ export type InViewOptions<InP extends Transition, OutP extends Transition | unde
 
     /** substitute node for the IntersectionObserver target */
     target?: Element | null;
+
+    /**
+     * whether to animate the element on page (re)load
+     * @default false
+     */
+    initial?: boolean;
 };
