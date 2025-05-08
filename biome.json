@@ -1,22 +1,14 @@
 {
     "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
     "files": {
-        "ignore": [
-            "node_modules/**",
-            ".svelte-kit/**"
-        ],
-        "include": [
-            "src/**/*"
-        ]
+        "ignore": ["node_modules/**", ".svelte-kit/**"],
+        "include": ["src/**/*"]
     },
     "formatter": {
         "indentStyle": "space",
         "indentWidth": 4,
         "lineEnding": "lf",
-        "ignore": [
-            "**/*.svelte",
-            "**/*.css"
-        ],
+        "ignore": ["**/*.svelte", "**/*.css"],
         "lineWidth": 120
     },
     "linter": {

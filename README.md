@@ -52,7 +52,7 @@ Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
 —just remember to set the initial state in your CSS.
 
 3. **Custom Callbacks**
-You can also pass callback functions, and trigger your own side-effects.
+   You can also pass callback functions, and trigger your own side-effects.
 
 ```svelte
 <div use:inview={{ callbacks: { enter: () => console.log('enter'), exit: () => console.log('exit') } }}>

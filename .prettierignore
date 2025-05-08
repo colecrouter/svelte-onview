@@ -1,0 +1,5 @@
+# Ignore all files
+**
+
+# Exclude from ignore: allow .svelte files in /src only
+!/src/**/*.svelte

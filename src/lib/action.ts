@@ -1,6 +1,6 @@
 import type { Action } from "svelte/action";
-import type { InViewOptions, Transition } from "./types.js";
 import { runFinalState, runTransition } from "./run.js";
+import type { InViewOptions, Transition } from "./types.js";
 
 export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, Transition | undefined>> = (
     node,
