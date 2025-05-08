@@ -1,0 +1,100 @@
+name: Release and Publish
+
+on:
+  push:
+    paths:
+      - "package.json"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Filter changes
+        id: filter
+        uses: dorny/paths-filter@v2
+        with:
+          filters: |
+            package:
+              - 'package.json'
+
+      - name: Exit if package.json not changed
+        if: steps.filter.outputs.package != 'true'
+        run: |
+          echo "No changes in package.json; skipping release."
+          exit 0
+
+      # Only run the below steps if package.json has changed
+      - name: Setup Node.js
+        if: steps.filter.outputs.package == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+          cache: "npm"
+          registry-url: "https://registry.npmjs.org/"
+
+      - name: Install dependencies
+        if: steps.filter.outputs.package == 'true'
+        run: npm ci
+
+      - name: Build package
+        if: steps.filter.outputs.package == 'true'
+        run: npm run build
+
+      - name: Get new package version and format tag
+        if: steps.filter.outputs.package == 'true'
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          PACKAGE_TAG="v$VERSION"
+          echo "New package version: $VERSION"
+          echo "Formatted tag: $PACKAGE_TAG"
+          echo "::set-output name=VERSION::$VERSION"
+          echo "::set-output name=PACKAGE_TAG::$PACKAGE_TAG"
+
+      - name: Fetch all tags
+        if: steps.filter.outputs.package == 'true'
+        run: git fetch --tags
+
+      - name: Get latest git tag
+        if: steps.filter.outputs.package == 'true'
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(git describe --tags $(git rev-list --tags --max-count=1) \
+            2>/dev/null || echo "none")
+          echo "Latest tag: $LATEST_TAG"
+          echo "::set-output name=TAG::$LATEST_TAG"
+
+      - name: Compare with latest tag
+        if: steps.filter.outputs.package == 'true'
+        run: |
+          PACKAGE_TAG="${{ steps.pkg.outputs.PACKAGE_TAG }}"
+          LATEST_TAG="${{ steps.latest_tag.outputs.TAG }}"
+          echo "Comparing package tag '$PACKAGE_TAG' with latest git tag '$LATEST_TAG'"
+          if [ "$PACKAGE_TAG" = "$LATEST_TAG" ]; then
+            echo "Version in package.json is the same as the latest git tag. Exiting."
+            exit 0
+          else
+            echo "Version updated. Proceeding with release..."
+          fi
+
+      - name: Create a Release
+        if: steps.filter.outputs.package == 'true'
+        uses: elgohr/Github-Release-Action@v5
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          title: Release ${{ steps.pkg.outputs.PACKAGE_TAG }}
+          tag: ${{ steps.pkg.outputs.PACKAGE_TAG }}
+
+      - name: Publish to npm
+        if: steps.filter.outputs.package == 'true'
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
