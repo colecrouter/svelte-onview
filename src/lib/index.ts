@@ -1,1 +1,2 @@
-// Reexport your entry components here
+export { inview } from "./action.js";
+export type { InViewConfig, InViewOptions } from "./types.js";
