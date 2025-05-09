@@ -80,7 +80,7 @@ export type InViewOptions<InP extends Transition | undefined, OutP extends Trans
     target?: Element | null;
 
     /**
-     * whether to animate the element on page (re)load
+     * Always animate the element **on mount**. The default behavior is to only animate it if it is out of view.
      * @default false
      */
     initial?: boolean;
