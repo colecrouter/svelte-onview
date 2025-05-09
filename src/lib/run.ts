@@ -2,7 +2,7 @@ import type { InViewConfig, Transition } from "./types.js";
 
 export function runTransition<T extends Transition>(
     node: HTMLElement,
-    cfg: InViewConfig,
+    cfg: InViewConfig<T>,
     direction: "in" | "out",
 ): () => void {
     // 1) snapshot the element’s inline style so we can restore it later
@@ -69,7 +69,7 @@ export function runTransition<T extends Transition>(
 
 export function runFinalState<T extends Transition>(
     node: HTMLElement,
-    cfg: InViewConfig,
+    cfg: InViewConfig<T>,
     direction: "in" | "out",
 ): () => void {
     // 1) snapshot the element’s inline style so we can restore it later

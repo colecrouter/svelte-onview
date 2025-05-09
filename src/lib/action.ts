@@ -1,11 +1,10 @@
-import type { Action } from "svelte/action";
 import { runFinalState, runTransition } from "./run.js";
 import type { InViewOptions, Transition } from "./types.js";
 
-export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, Transition | undefined>> = (
-    node,
-    options,
-) => {
+export function inview<T1 extends Transition | undefined, T2 extends Transition | undefined>(
+    node: HTMLElement,
+    options: InViewOptions<T1, T2>,
+) {
     // Update-able options
     let inCfg = options.in ?? options.transition;
     let outCfg = options.out ?? options.transition;
@@ -126,7 +125,7 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
     createObserver();
 
     return {
-        update(newOpts) {
+        update(newOpts: typeof options) {
             observer?.disconnect();
             cleanupFrame();
             inCfg = newOpts.in ?? newOpts.transition;
@@ -139,4 +138,4 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
             cleanupFrame();
         },
     };
-};
+}

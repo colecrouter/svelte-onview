@@ -7,7 +7,20 @@ export type Transition = (
     options: { direction: "in" | "out" | "both" },
 ) => TransitionConfig;
 
-export type InViewConfig = {
+export type InViewConfig<T extends Transition | undefined> = (T extends Transition
+    ? {
+          animation: T;
+          params?: Parameters<T>[1];
+      }
+    : {
+          animation?: never;
+          params?: never;
+      }) & {
+    /** animation to run; required if provided */
+    animation?: unknown;
+
+    /** params to be passed to the animation; optional */
+    params?: unknown;
     /**
      * {@link https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API#thresholds}
      *
@@ -21,29 +34,18 @@ export type InViewConfig = {
      * out: 1 // will disappear when the entire element is visible
      */
     threshold?: number;
-} & (
-    | {
-          /** animation to run; required if provided */
-          animation: Transition;
-          /** params to be passed to the animation; optional */
-          params?: Parameters<Transition>[1];
-      }
-    | {
-          animation?: undefined;
-          params?: undefined;
-      }
-);
+};
 
 export type InViewOptions<InP extends Transition | undefined, OutP extends Transition | undefined = undefined> = (
     | {
-          in?: InP extends Transition ? InViewConfig : never;
-          out?: OutP extends Transition ? InViewConfig : InViewConfig;
+          in?: InP extends Transition ? InViewConfig<InP> : never;
+          out?: OutP extends Transition ? InViewConfig<OutP> : InViewConfig<InP>;
           transition?: never;
       }
     | {
           in?: never;
           out?: never;
-          transition: InP extends Transition ? InViewConfig : never;
+          transition: InP extends Transition ? InViewConfig<InP> : never;
       }
 ) & {
     /**
