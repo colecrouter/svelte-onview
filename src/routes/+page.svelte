@@ -1,6 +1,6 @@
 <script lang="ts">
     import { inview } from '$lib/index.js';
-    import { fade, fly } from 'svelte/transition';
+    import { fade, fly, slide } from 'svelte/transition';
 
     // generate some demo cards
     interface Card {
@@ -8,14 +8,14 @@
         title: string;
         body: string;
     }
-    const cards: Card[] = Array(12)
+    const cards: Card[] = Array(20)
         .fill(0)
         .map((_, i) => ({
             id: i + 1,
             title: `Card #${i + 1}`,
             body:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-                'Praesent vitae eros eget tellus tristique bibendum.',
+                'Praesent vitae eros eget tellus tristique bibendum. '
         }));
 </script>
 
@@ -30,13 +30,13 @@
                 use:inview={{
                     in: {
                         animation: fly,
-                        params: { distance: 40, duration: 500 },
-                        threshold: 0,
+                        params: { y: 100, duration: 300 },
+                        threshold: 1,
                     },
                     out: {
                         animation: fly,
-                        params: { distance: 40, duration: 300 },
-                        threshold: 0.9,
+                        params: { y: -100, duration: 300 },
+                        threshold: 1,
                     },
                     once: false,
                     class: 'visible',
@@ -67,11 +67,39 @@
             It will never fade out; once you've scrolled here, it stays visible.
         </p>
     </div>
+
+    <!-- new demo: always slide in on load -->
+    <div
+        class="slide-demo"
+        use:inview={{
+            in: {
+                animation: slide,
+                params: { axis: 'x', duration: 600 },
+                threshold: 0.2,
+            },
+            out: {
+                animation: slide,
+                params: { axis: 'x', duration: 400 },
+                threshold: 0.8,
+            },
+            once: false,
+            initial: true,
+            class: 'visible',
+            callbacks: {
+                enter: () => console.log('Slide Demo Enter'),
+                exit: () => console.log('Slide Demo Exit'),
+            },
+        }}>
+        <h2>Always Sliding Demo</h2>
+        <p>
+            This section slides in from the left on load, and will slide out as you scroll past it.
+        </p>
+    </div>
 </div>
 
 <style>
     .page {
-        max-width: 800px;
+        max-width: 600px;
         margin: 0 auto;
         padding: 2rem 1rem;
         font-family: system-ui, sans-serif;
@@ -82,14 +110,14 @@
     }
     .cards {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
     }
     .card {
         background: white;
         border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+        padding: 1.5rem;
         transform-origin: top center;
         will-change: transform, opacity;
     }
@@ -104,5 +132,13 @@
         background: #f0f8ff;
         border-radius: 8px;
         will-change: opacity;
+    }
+    .slide-demo {
+        margin: 4rem 0;
+        padding: 2rem;
+        background: #ffe4e1;
+        border-radius: 8px;
+        text-align: center;
+        will-change: transform, opacity;
     }
 </style>
