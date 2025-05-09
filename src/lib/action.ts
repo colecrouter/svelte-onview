@@ -1,11 +1,10 @@
-import type { Action } from "svelte/action";
-import { runFinalState, runTransition } from "./run.js";
+import { runTransition } from "./run.js";
 import type { InViewOptions, Transition } from "./types.js";
 
-export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, Transition | undefined>> = (
-    node,
-    options,
-) => {
+export function inview<T1 extends Transition | undefined, T2 extends Transition | undefined>(
+    node: HTMLElement,
+    options: InViewOptions<T1, T2>,
+) {
     // Update-able options
     let inCfg = options.in ?? options.transition;
     let outCfg = options.out ?? options.transition;
@@ -17,6 +16,7 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
     const rootMargin = options.rootMargin ?? "0px";
 
     let observer: IntersectionObserver | null = null;
+    let proxyEl: HTMLElement | null = null;
 
     // Keep track of which state we are in
     // Otherwise, overlapping thresholds will cause undesired behavior
@@ -36,22 +36,57 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
 
     // Helper to process the transition
     function doTransition(state: "in" | "out") {
+        // Cancel any animation that is currently running
+        cleanupFrame();
+
         const cfg = state === "in" ? inCfg : outCfg;
         if (!cfg?.animation) return;
-        cleanupFrame();
+
+        // Perform the transition
         cleanupFrame = runTransition(node, cfg, state);
-        if (state === "in") {
-            options.callbacks?.enter?.(node);
-            toggleClasses("add");
-            if (once) observer?.disconnect();
-        } else {
-            options.callbacks?.exit?.(node);
-            toggleClasses("remove");
+
+        // Handle side effects
+        options.callbacks?.[state === "in" ? "enter" : "exit"]?.(node);
+        toggleClasses(state === "in" ? "add" : "remove");
+
+        // Only disconnect on entering animation, otherwise elements out of view will be disconnected on mount.
+        if (state === "in" && once) observer?.disconnect();
+    }
+
+    // Add proxy element with our target inside. This is necessary because
+    // we can observe that instead, which will cause less issues with transitions
+    // using `transform`.
+    function addProxy() {
+        if (!options.target) {
+            proxyEl = document.createElement("div");
+            node.parentElement?.appendChild(proxyEl);
+            proxyEl.appendChild(node);
+        }
+    }
+
+    // Remove the proxy element and append the original node back to its parent
+    function removeProxy() {
+        if (proxyEl?.parentNode) {
+            const element = proxyEl.children[0];
+            if (!element) return; // Ensure the child exists before proceeding
+            proxyEl.parentNode.removeChild(proxyEl);
+            node.parentElement?.appendChild(element);
         }
     }
 
     function createObserver() {
         observer?.disconnect();
+
+        // Reset any previous proxy element
+        removeProxy();
+        addProxy();
+
+        const targetEl =
+            options.target ??
+            proxyEl ??
+            (() => {
+                throw new Error("No target element found");
+            })();
 
         observer = new IntersectionObserver(
             (entries) => {
@@ -82,53 +117,62 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
             },
         );
 
-        // Observe the target element
-        const targetEl = options.target ?? node;
         observer.observe(targetEl);
 
         // Set the default state based on the initial visibility
-        // Otherwise, the animation will play on page load
+        // Otherwise, all elements will animate on mount
         if (!options.initial) {
-            const rect = (options.target ?? node).getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const intersectionTop = Math.max(rect.top, 0);
-            const intersectionBottom = Math.min(rect.bottom, viewportHeight);
-            const intersectionHeight = Math.max(intersectionBottom - intersectionTop, 0);
-            const ratio = rect.height > 0 ? intersectionHeight / rect.height : 0;
+            requestAnimationFrame(() => {
+                const rect = targetEl.getBoundingClientRect();
+                const viewportHeight = window.innerHeight;
+                const intersectionTop = Math.max(rect.top, 0);
+                const intersectionBottom = Math.min(rect.bottom, viewportHeight);
+                const intersectionHeight = Math.max(intersectionBottom - intersectionTop, 0);
+                const ratio = rect.height > 0 ? intersectionHeight / rect.height : 0;
 
-            currentState =
-                thresholdIn === 0
-                    ? ratio > 0
-                        ? "in"
-                        : "out"
-                    : ratio >= thresholdIn
-                      ? "in"
-                      : ratio <= thresholdOut
-                        ? "out"
-                        : "out";
+                currentState =
+                    thresholdIn === 0
+                        ? ratio > 0
+                            ? "in"
+                            : "out"
+                        : ratio >= thresholdIn
+                          ? "in"
+                          : ratio <= thresholdOut
+                            ? "out"
+                            : "out";
 
-            if (currentState === "in" && inCfg) {
-                options.callbacks?.enter?.(node);
-                toggleClasses("add");
-                if (once) observer?.disconnect();
-            } else if (currentState === "out" && outCfg) {
-                // If the element is out of view, set it to its final "out" state
-                cleanupFrame();
-                if (!outCfg.animation) return;
-                cleanupFrame = runFinalState(node, outCfg, "out");
+                doTransition(currentState);
 
-                options.callbacks?.exit?.(node);
-                toggleClasses("remove");
-            }
+                if (currentState === "in" && inCfg) {
+                    cleanupFrame();
+                    if (!inCfg.animation) return;
+
+                    options.callbacks?.enter?.(node);
+                    toggleClasses("add");
+
+                    // Only disconnect on entering animation, otherwise elements out of view will be disconnected on mount.
+                    if (once) observer?.disconnect();
+                } else if (currentState === "out" && outCfg) {
+                    cleanupFrame();
+                    if (!outCfg.animation) return;
+
+                    // This is the default behavior when `initial: true`, but we want elements out of view to transition out on mount, instead of just flashing.
+                    cleanupFrame = runTransition(node, outCfg, "out");
+
+                    options.callbacks?.exit?.(node);
+                    toggleClasses("remove");
+                }
+            });
         }
     }
 
     createObserver();
 
     return {
-        update(newOpts) {
+        update(newOpts: typeof options) {
             observer?.disconnect();
             cleanupFrame();
+
             inCfg = newOpts.in ?? newOpts.transition;
             outCfg = newOpts.out ?? newOpts.transition;
             once = newOpts.once ?? false;
@@ -137,6 +181,9 @@ export const inview: Action<HTMLElement, InViewOptions<Transition | undefined, T
         destroy() {
             observer?.disconnect();
             cleanupFrame();
+
+            // Unmount the proxy element
+            removeProxy();
         },
     };
-};
+}
