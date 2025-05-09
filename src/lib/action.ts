@@ -68,6 +68,7 @@ export function inview<T1 extends Transition | undefined, T2 extends Transition 
     function removeProxy() {
         if (proxyEl?.parentNode) {
             const element = proxyEl.children[0];
+            if (!element) return; // Ensure the child exists before proceeding
             proxyEl.parentNode.removeChild(proxyEl);
             node.parentElement?.appendChild(element);
         }
