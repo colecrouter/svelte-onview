@@ -1,6 +1,7 @@
 {
   "name": "sveltersect",
-  "version": "0.0.1",
+  "version": "0.0.2",
+  "repository": {"type": "git", "url": "git+https://github.com/colecrouter/sveltersect.git"},
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npm run prepack",
