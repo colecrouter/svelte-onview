@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { inview } from '$lib/index.js';
+    import { reveal } from '$lib/index.js';
     import { fade, fly, slide } from 'svelte/transition';
 
     // generate some demo cards
@@ -27,7 +27,7 @@
         {#each cards as card (card.id)}
             <div
                 class="card"
-                use:inview={{
+                use:reveal={{
                     in: {
                         animation: fly,
                         params: { y: 100, duration: 300 },
@@ -54,7 +54,7 @@
     <!-- a single element that only fades in once -->
     <div
         class="fade-only"
-        use:inview={{
+        use:reveal={{
             transition: {
                 animation: fade,
                 params: { duration: 800 },
@@ -71,7 +71,7 @@
     <!-- new demo: always slide in on load -->
     <div
         class="slide-demo"
-        use:inview={{
+        use:reveal={{
             in: {
                 animation: slide,
                 params: { axis: 'x', duration: 600 },

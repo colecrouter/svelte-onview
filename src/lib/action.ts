@@ -1,9 +1,9 @@
 import { runTransition } from "./run.js";
-import type { InViewOptions, Transition } from "./types.js";
+import type { SveltetersectOptions, Transition } from "./types.js";
 
-export function inview<T1 extends Transition | undefined, T2 extends Transition | undefined>(
+export function reveal<T1 extends Transition | undefined, T2 extends Transition | undefined>(
     node: HTMLElement,
-    options: InViewOptions<T1, T2>,
+    options: SveltetersectOptions<T1, T2>,
 ) {
     // Update-able options
     let inCfg = options.in ?? options.transition;

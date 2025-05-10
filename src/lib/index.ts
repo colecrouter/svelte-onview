@@ -1,2 +1,2 @@
-export { inview } from "./action.js";
-export type { InViewConfig, InViewOptions } from "./types.js";
+export { reveal } from "./action.js";
+export type { IntersectionTransitionConfig, SveltetersectOptions } from "./types.js";

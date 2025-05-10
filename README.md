@@ -1,18 +1,18 @@
-# svelte-inview
+# sveltersect
 
-svelte-inview is an ultra-lightweight library that lets you effortlessly animate elements when they come in/out of view.
+sveltersect is an ultra-lightweight library that lets you effortlessly animate elements when they come in/out of view. Use built-in Svelte transitions, CSS classes, or custom callbacks to create stunning effects with minimal effort.
 
-[View Demo](https://colecrouter.github.io/svelte-inview)
+[View Demo](https://colecrouter.github.io/sveltersect)
 
 ## Installation
 
 ```bash
-npm i -D svelte-inview
+npm i -D sveltersect
 ```
 
 ## Usage
 
-svelte-inview has three main ways to animate elements when the enter or exit the viewport:
+sveltersect has three main ways to animate elements:
 
 1. **Svelte Transitions**
 
@@ -21,21 +21,21 @@ Use the built-in Svelte transitions. You can use any of the built-in transitions
 ```svelte
 <script>
   import { fade } from 'svelte/transition';
-  import { inview } from 'svelte-inview';
+  import { reveal } from 'sveltersect';
 </script>
-<div use:inview={{ transition: { animation: fade, params: { duration: 800 }, threshold: 0.3 } }}>
+<div use:reveal={{ transition: { animation: fade, threshold: 0.3 } }}>
   This element will fade in when it enters the viewport and fade out when it exits.
 </div>
 ```
 
-svelte-inview will automatically apply the correct transition in each state.
+sveltersect will automatically apply the correct transition in each state; mount, unmount, enter, and exit.
 
 2. **CSS Classes**
 
 Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
 
 ```svelte
-<div use:inview={{ class: 'fade-in-out', transition: { threshold: 0.5 } }}>
+<div use:reveal={{ class: 'fade-in-out', transition: { threshold: 0.5 } }}>
   This element will fade in when it enters the viewport and fade out when it exits.
 </div>
 <style>
@@ -55,7 +55,10 @@ Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
    You can also pass callback functions, and trigger your own side-effects.
 
 ```svelte
-<div use:inview={{ callbacks: { enter: () => console.log('enter'), exit: () => console.log('exit') } }}>
+<div use:reveal={{ callbacks: { 
+  enter: () => console.log('enter'),
+  exit: () => console.log('exit')
+}}>
   This element will log to the console when it enters and exits the viewport.
 </div>
 ```
@@ -63,7 +66,10 @@ Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
 Lastly, you can also use separate parameters for entering and exiting transitions:
 
 ```svelte
-<div use:inview={{ in: { animation: fly, params: { duration: 200 }, threshold: 0.5 } }}>
+<div use:reveal={{
+  in: { animation: fly, params: { y: 100 }, threshold: 0.5 },
+  out: { animation: fade, params: { duration: 200 }, threshold: 0.5 }
+}}>
   This element will fade in when it enters the viewport and fade out when it exits.
 </div>
 ```

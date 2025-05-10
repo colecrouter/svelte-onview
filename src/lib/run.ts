@@ -1,8 +1,8 @@
-import type { InViewConfig, Transition } from "./types.js";
+import type { IntersectionTransitionConfig, Transition } from "./types.js";
 
 export function runTransition<T extends Transition>(
     node: HTMLElement,
-    cfg: InViewConfig<T>,
+    cfg: IntersectionTransitionConfig<T>,
     direction: "in" | "out",
 ): () => void {
     // 1) snapshot the element’s inline style so we can restore it later

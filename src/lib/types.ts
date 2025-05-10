@@ -7,7 +7,7 @@ export type Transition = (
     options: { direction: "in" | "out" | "both" },
 ) => TransitionConfig;
 
-export type InViewConfig<T extends Transition | undefined> = (T extends Transition
+export type IntersectionTransitionConfig<T extends Transition | undefined> = (T extends Transition
     ? {
           animation: T;
           params?: Parameters<T>[1];
@@ -36,16 +36,19 @@ export type InViewConfig<T extends Transition | undefined> = (T extends Transiti
     threshold?: number;
 };
 
-export type InViewOptions<InP extends Transition | undefined, OutP extends Transition | undefined = undefined> = (
+export type SveltetersectOptions<
+    InP extends Transition | undefined,
+    OutP extends Transition | undefined = undefined,
+> = (
     | {
-          in?: InP extends Transition ? InViewConfig<InP> : never;
-          out?: OutP extends Transition ? InViewConfig<OutP> : InViewConfig<InP>;
+          in?: InP extends Transition ? IntersectionTransitionConfig<InP> : never;
+          out?: OutP extends Transition ? IntersectionTransitionConfig<OutP> : IntersectionTransitionConfig<InP>;
           transition?: never;
       }
     | {
           in?: never;
           out?: never;
-          transition: InP extends Transition ? InViewConfig<InP> : never;
+          transition: InP extends Transition ? IntersectionTransitionConfig<InP> : never;
       }
 ) & {
     /**
