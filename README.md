@@ -75,3 +75,49 @@ Lastly, you can also use separate parameters for entering and exiting transition
 ```
 
 For an extensive list of options, check out the [type declarations](src\lib\types.ts).
+
+### Use with Third-Party Libraries
+
+Third party libraries are tricky; you need to tickle *just* the right spots to get the desired effect. Because of this, there is no one-size-fits-all solution. Here's an exampel using `number-flow`:
+
+```svelte
+<script>
+  import NumberFlow from '@number-flow/svelte';
+  
+  let value = $state(123);
+  function setValue() {
+    value = 123;
+  };
+  function resetValue() {
+    value = 0;
+  };
+</script>
+
+<div use:reveal={{
+    callbacks: {
+        enter: setValue,
+        exit: resetValue,
+    },
+    transition: {
+        threshold: 0.3,
+    },
+}}>
+  <NumberFlow {value} duration={1000} />
+</div>
+```
+
+This will create the following effect
+
+- On mount:
+  - If in view, nothing will happen
+  - If out of view, the number will transition to `0`
+- On enter, the number will transition to `123`
+- On exit, the number will transition to `0`
+
+You can change the mounting behavior just by changing the initial value. For example, using `let value = $state(0);`, we get the following:
+
+- On mount:
+  - If in view, the number will transition to `123`
+  - If out of view, the number will transition to `0`
+
+You can further customize the behavior by using `initial: true`, which will cause `setValue` to be called on mount. Though, it is not required for this example.

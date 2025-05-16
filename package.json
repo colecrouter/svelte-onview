@@ -1,7 +1,10 @@
 {
   "name": "sveltersect",
   "version": "0.0.2",
-  "repository": {"type": "git", "url": "git+https://github.com/colecrouter/sveltersect.git"},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colecrouter/sveltersect.git"
+  },
   "scripts": {
     "dev": "vite dev",
     "build": "vite build && npm run prepack",
@@ -35,6 +38,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "@number-flow/svelte": "^0.3.7",
     "@sveltejs/adapter-auto": "^6.0.0",
     "@sveltejs/adapter-static": "^3.0.8",
     "@sveltejs/kit": "^2.16.0",

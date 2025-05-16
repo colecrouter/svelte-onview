@@ -1,5 +1,6 @@
 <script lang="ts">
     import { reveal } from '$lib/index.js';
+    import NumberFlow from '@number-flow/svelte';
     import { fade, fly, slide } from 'svelte/transition';
 
     // generate some demo cards
@@ -15,8 +16,19 @@
             title: `Card #${i + 1}`,
             body:
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-                'Praesent vitae eros eget tellus tristique bibendum. '
+                'Praesent vitae eros eget tellus tristique bibendum. ',
         }));
+
+    // For third part component that needs to be remounted
+    let value = $state(123);
+    const setValue = () => {
+        console.log('Setting value');
+        value = 123;
+    };
+    const resetValue = () => {
+        console.log('Resetting value');
+        value = 0;
+    };
 </script>
 
 <div class="page">
@@ -68,7 +80,23 @@
         </p>
     </div>
 
-    <!-- new demo: always slide in on load -->
+    <!-- use @number-flow/svelte with `unmount` animation property -->
+    <div
+        class="toggle-unmount"
+        use:reveal={{
+            callbacks: {
+                enter: setValue,
+                exit: resetValue,
+            },
+            transition: {
+                threshold: 0.3,
+            },
+        }}>
+        <h2>Number Flow Demo</h2>
+        <NumberFlow {value} duration={1000} />
+        <p>The number will unmount when you scroll past it.</p>
+    </div>
+
     <div
         class="slide-demo"
         use:reveal={{
@@ -92,7 +120,8 @@
         }}>
         <h2>Always Sliding Demo</h2>
         <p>
-            This section slides in from the left on load, and will slide out as you scroll past it.
+            This section slides in from the left on load, and will slide out as
+            you scroll past it.
         </p>
     </div>
 </div>
@@ -132,6 +161,19 @@
         background: #f0f8ff;
         border-radius: 8px;
         will-change: opacity;
+    }
+    .toggle-unmount {
+        margin: 3rem 0;
+        text-align: center;
+        padding: 2rem;
+        background: #f5f5dc;
+        border-radius: 8px;
+        will-change: opacity;
+    }
+    :global(number-flow-svelte) {
+        --number-flow-char-height: 0.85em;
+        font-size: 2rem;
+        font-weight: 500;
     }
     .slide-demo {
         margin: 4rem 0;
