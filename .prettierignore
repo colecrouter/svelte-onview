@@ -1,5 +1,10 @@
-# Ignore all files
-**
-
 # Exclude from ignore: allow .svelte files in /src only
 !/src/**/*.svelte
+*.json
+*.js
+*.ts
+*.md
+*.html
+*.css
+*.md
+*.yml
