@@ -110,6 +110,8 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                     if (desiredState === "in" || desiredState === "out") {
                         doTransition(desiredState);
                         sideEffects(desiredState);
+
+                        if (once) observer?.disconnect();
                     }
                 }
             },
