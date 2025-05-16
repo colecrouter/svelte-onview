@@ -1,2 +1,2 @@
 export { reveal } from "./action.js";
-export type { IntersectionTransitionConfig, SveltetersectOptions } from "./types.js";
+export { defineRevealOptions, type IntersectionTransitionConfig, type SveltetersectOptions } from "./types.js";

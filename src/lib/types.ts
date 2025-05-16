@@ -96,3 +96,25 @@ export type SveltetersectOptions<
      */
     initial?: boolean;
 };
+
+export function defineRevealOptions<InP extends Transition, OutP extends Transition>(
+    opts: {
+        in: IntersectionTransitionConfig<InP>;
+        out: IntersectionTransitionConfig<OutP>;
+    } & Omit<SveltetersectOptions<InP, OutP>, "in" | "out">,
+): SveltetersectOptions<InP, OutP>;
+
+export function defineRevealOptions<InP extends Transition>(
+    opts: {
+        transition: IntersectionTransitionConfig<InP>;
+    } & Omit<SveltetersectOptions<InP, undefined>, "transition">,
+): SveltetersectOptions<InP, undefined>;
+
+/**
+ * A tiny wrapper so that callers never have to write
+ * `SveltetersectOptions<…, …>` by hand – TS will infer
+ * both In‐ and Out‐transition types from the object literal.
+ */
+export function defineRevealOptions(opts: unknown) {
+    return opts;
+}

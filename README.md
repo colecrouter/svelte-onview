@@ -121,3 +121,35 @@ You can change the mounting behavior just by changing the initial value. For exa
   - If out of view, the number will transition to `0`
 
 You can further customize the behavior by using `initial: true`, which will cause `setValue` to be called on mount. Though, it is not required for this example.
+
+### Manual Typing
+
+To use the generic type for `reveal` options, do the following:
+
+```ts
+const config = {
+  in: {
+    animation: fade,
+    params: { duration: 800 },
+  },
+  out: {
+    animation: fly,
+    params: { duration: 800, x: 0 },
+  },
+} satisfies SveltetersectOptions<typeof fade, typeof fly>;
+```
+
+—or use the helper function to avoid the generic:
+
+```ts
+const config2 = defineRevealOptions({
+  in: {
+    animation: fade,
+    params: { duration: 800 },
+  },
+  out: {
+    animation: fly,
+    params: { duration: 800, x: 0 },
+  },
+})
+```
