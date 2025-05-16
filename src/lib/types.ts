@@ -8,13 +8,21 @@ export type Transition = (
 ) => TransitionConfig;
 
 export type IntersectionTransitionConfig<T extends Transition | undefined> = (T extends Transition
-    ? {
-          animation: T;
-          params?: Parameters<T>[1];
-      }
+    ?
+          | {
+                animation: T;
+                params: Parameters<T>[1];
+                threshold?: number;
+            }
+          | {
+                animation?: undefined;
+                params?: undefined;
+                threshold?: number;
+            }
     : {
-          animation?: never;
-          params?: never;
+          animation?: undefined;
+          params?: undefined;
+          threshold?: number;
       }) & {
     /** animation to run; required if provided */
     animation?: unknown;
