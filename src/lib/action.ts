@@ -34,6 +34,12 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
         }
     }
 
+    function sideEffects(state: "in" | "out") {
+        // Handle side effects
+        options.callbacks?.[state === "in" ? "enter" : "exit"]?.(node);
+        toggleClasses(state === "in" ? "add" : "remove");
+    }
+
     // Helper to process the transition
     function doTransition(state: "in" | "out") {
         // Cancel any animation that is currently running
@@ -44,10 +50,6 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
 
         // Perform the transition
         cleanupFrame = runTransition(node, cfg, state);
-
-        // Handle side effects
-        options.callbacks?.[state === "in" ? "enter" : "exit"]?.(node);
-        toggleClasses(state === "in" ? "add" : "remove");
 
         // Only disconnect on entering animation, otherwise elements out of view will be disconnected on mount.
         if (state === "in" && once) observer?.disconnect();
@@ -105,8 +107,9 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                     if (currentState === desiredState) continue;
                     currentState = desiredState;
 
-                    if ((desiredState === "in" && inCfg) || (desiredState === "out" && outCfg)) {
+                    if (desiredState === "in" || desiredState === "out") {
                         doTransition(desiredState);
+                        sideEffects(desiredState);
                     }
                 }
             },
@@ -119,51 +122,42 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
 
         observer.observe(targetEl);
 
-        // Set the default state based on the initial visibility
-        // Otherwise, all elements will animate on mount
-        if (!options.initial) {
-            requestAnimationFrame(() => {
-                const rect = targetEl.getBoundingClientRect();
-                const viewportHeight = window.innerHeight;
-                const intersectionTop = Math.max(rect.top, 0);
-                const intersectionBottom = Math.min(rect.bottom, viewportHeight);
-                const intersectionHeight = Math.max(intersectionBottom - intersectionTop, 0);
-                const ratio = rect.height > 0 ? intersectionHeight / rect.height : 0;
+        requestAnimationFrame(() => {
+            const rect = targetEl.getBoundingClientRect();
+            const viewportHeight = window.innerHeight;
+            const intersectionTop = Math.max(rect.top, 0);
+            const intersectionBottom = Math.min(rect.bottom, viewportHeight);
+            const intersectionHeight = Math.max(intersectionBottom - intersectionTop, 0);
+            const ratio = rect.height > 0 ? intersectionHeight / rect.height : 0;
 
-                currentState =
-                    thresholdIn === 0
-                        ? ratio > 0
-                            ? "in"
-                            : "out"
-                        : ratio >= thresholdIn
-                          ? "in"
-                          : ratio <= thresholdOut
-                            ? "out"
-                            : "out";
+            currentState =
+                thresholdIn === 0
+                    ? ratio > 0
+                        ? "in"
+                        : "out"
+                    : ratio >= thresholdIn
+                      ? "in"
+                      : ratio <= thresholdOut
+                        ? "out"
+                        : "out";
 
+            if (options.initial) {
+                // Always run the transition on mount
                 doTransition(currentState);
+                sideEffects(currentState);
+            } else {
+                if (currentState === "in") {
+                    // If the element is already in view, don't do anything
 
-                if (currentState === "in" && inCfg) {
-                    cleanupFrame();
-                    if (!inCfg.animation) return;
-
-                    options.callbacks?.enter?.(node);
-                    toggleClasses("add");
-
-                    // Only disconnect on entering animation, otherwise elements out of view will be disconnected on mount.
+                    // Manually disconnect the observer if `once` is true
                     if (once) observer?.disconnect();
-                } else if (currentState === "out" && outCfg) {
-                    cleanupFrame();
-                    if (!outCfg.animation) return;
-
-                    // This is the default behavior when `initial: true`, but we want elements out of view to transition out on mount, instead of just flashing.
-                    cleanupFrame = runTransition(node, outCfg, "out");
-
-                    options.callbacks?.exit?.(node);
-                    toggleClasses("remove");
+                } else if (currentState === "out") {
+                    // If the element is out of view, transition it out
+                    doTransition(currentState);
+                    sideEffects(currentState);
                 }
-            });
-        }
+            }
+        });
     }
 
     createObserver();
