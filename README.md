@@ -120,7 +120,7 @@ You can change the mounting behavior just by changing the initial value. For exa
   - If in view, the number will transition to `123`
   - If out of view, the number will transition to `0`
 
-You can further customize the behavior by using `initial: true`, which will cause `setValue` to be called on mount. Though, it is not required for this example.
+You may need to also set `initial: true`, which will cause `setValue` to be called on mount.
 
 ### Manual Typing
 
