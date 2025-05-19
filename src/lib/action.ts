@@ -149,7 +149,12 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                 doTransition(currentState);
                 sideEffects(currentState);
 
-                if (once) observer?.disconnect();
+                if (currentState === "in") {
+                    // Only disconnect if we are in the "in" state
+                    if (once) observer?.disconnect();
+                } else {
+                    // Don't do anything extra if we are in the "out" state
+                }
             } else {
                 if (currentState === "in") {
                     // If the element is already in view, don't do anything
