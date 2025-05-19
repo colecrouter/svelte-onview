@@ -4,6 +4,11 @@ sveltersect is an ultra-lightweight library that lets you effortlessly animate e
 
 [View Demo](https://colecrouter.github.io/sveltersect)
 
+Other uses:
+
+- Lazy loading images/components/scripts
+- Infinite scrolling
+
 ## Installation
 
 ```bash
@@ -58,7 +63,7 @@ Prefer CSS? Simply pass a class (or classes) to tie it into the observer.
 <div use:reveal={{ callbacks: { 
   enter: () => console.log('enter'),
   exit: () => console.log('exit')
-}}>
+}}}>
   This element will log to the console when it enters and exits the viewport.
 </div>
 ```
@@ -136,7 +141,7 @@ const config = {
     animation: fly,
     params: { duration: 800, x: 0 },
   },
-} satisfies SveltetersectOptions<typeof fade, typeof fly>;
+} satisfies SveltersectOptions<typeof fade, typeof fly>;
 ```
 
 —or use the helper function to avoid the generic:
@@ -153,3 +158,38 @@ const config2 = defineRevealOptions({
   },
 })
 ```
+
+### Component Wrapper
+
+Use the `<Reveal>` Svelte component to wrap any content:
+
+```svelte
+<script>
+  import { fade } from 'svelte/transition';
+
+  const opts = defineRevealOptions({
+    transition: { animation: blur, threshold: 0.3 },
+    initial: true,
+  });
+</script>
+
+<Reveal {...opts}>
+  <p>Component demo</p>
+</Reveal>
+```
+
+Advantages:
+
+- Hides content in SSR (no exit animations on mount)
+- No layout shifts!
+- Supports the same options as the `reveal` action
+
+## Why is Sveltersect Different?
+
+Sveltersect was created amongst many other libraries that do the same thing. My main goal was to create library that is:
+
+- Compatible with Svelte's built-in transitions
+- Extensible (actions, components, callbacks, etc.)
+- Takes care of the small details (if you've used transitions *or* IntersectionObserver, you know)
+
+That aside, Sveltersect should be capable of doing everything the other libraries can do, and more. If you find a bug or have a feature request, please open an issue.
