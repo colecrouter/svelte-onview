@@ -1,7 +1,8 @@
 <script lang="ts">
-    import { reveal } from '$lib/index.js';
+    import { defineRevealOptions, reveal } from '$lib/index.js';
     import NumberFlow from '@number-flow/svelte';
-    import { fade, fly, slide } from 'svelte/transition';
+    import { blur, fade, fly, slide } from 'svelte/transition';
+    import Reveal from '$lib/Reveal.svelte';
 
     // generate some demo cards
     interface Card {
@@ -96,6 +97,16 @@
         <NumberFlow {value} duration={1000} />
         <p>The number will unmount when you scroll past it.</p>
     </div>
+
+    <!-- Component Wrapper Demo -->
+    <Reveal transition={{ animation: blur, threshold: 0.3 }}>
+        <div class="component-demo">
+            <h2>Component Wrapper Demo</h2>
+            <p>
+                This content is hidden in SSR and only revealed on client mount.
+            </p>
+        </div>
+    </Reveal>
 
     <!-- Delayed Fade Demo -->
     <div class="delay-container">
@@ -217,5 +228,13 @@
         border-radius: 8px;
         text-align: center;
         will-change: opacity;
+    }
+
+    .component-demo {
+        margin: 3rem 0;
+        padding: 2rem;
+        background: #dff0d8;
+        border-radius: 8px;
+        text-align: center;
     }
 </style>
