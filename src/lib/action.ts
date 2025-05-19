@@ -61,18 +61,23 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
     function addProxy() {
         if (!options.target) {
             proxyEl = document.createElement("div");
-            node.parentElement?.appendChild(proxyEl);
+            const parent = node.parentElement;
+            if (!parent) return;
+            // insert wrapper right where `node` was
+            const next = node.nextSibling;
+            parent.insertBefore(proxyEl, next);
+            // move node into wrapper
             proxyEl.appendChild(node);
         }
     }
 
     // Remove the proxy element and append the original node back to its parent
+
     function removeProxy() {
         if (proxyEl?.parentNode) {
-            const element = proxyEl.children[0];
-            if (!element) return; // Ensure the child exists before proceeding
+            // move node back to where the wrapper is
+            proxyEl.parentNode.insertBefore(node, proxyEl);
             proxyEl.parentNode.removeChild(proxyEl);
-            node.parentElement?.appendChild(element);
         }
     }
 

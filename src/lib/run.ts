@@ -21,20 +21,20 @@ export function runTransition<T extends Transition>(
     let rafId: number;
     let timeoutId: number;
 
+    // apply the initial frame immediately
+    const t0 = direction === "in" ? 0 : 1;
+    const u0 = 1 - t0;
+    if (css) node.style.cssText = css(t0, u0);
+    if (tick) tick(t0, u0);
+
     function start() {
         const startTime = performance.now();
-
-        // apply the “initial” frame immediately
-        const t0 = direction === "in" ? 0 : 1;
-        const u0 = 1 - t0;
-        if (css) node.style.cssText = css(t0, u0);
-        if (tick) tick(t0, u0);
 
         function step(now: number) {
             const elapsed = now - startTime;
             const raw = Math.min(elapsed / duration, 1);
             const eased = easing(raw);
-            // flip for “out”
+            // flip for "out"
             const t = direction === "in" ? eased : 1 - eased;
             const u = 1 - t;
 

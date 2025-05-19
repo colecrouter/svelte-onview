@@ -97,6 +97,28 @@
         <p>The number will unmount when you scroll past it.</p>
     </div>
 
+    <!-- Delayed Fade Demo -->
+    <div class="delay-container">
+        {#each Array(3) as _, i}
+            <div
+                class="delay-demo"
+                use:reveal={{
+                    in: {
+                        animation: fade,
+                        params: { duration: 600, delay: i * 500 },
+                    },
+                    // No out animation, so that it disappears immediately
+                }}>
+                <h2>Delayed Fade Demo</h2>
+                <p>
+                    This block will wait 500 ms before fading in when you scroll
+                    it into view.
+                </p>
+            </div>
+        {/each}
+    </div>
+
+    <!-- Always Sliding Demo -->
     <div
         class="slide-demo"
         use:reveal={{
@@ -182,5 +204,18 @@
         border-radius: 8px;
         text-align: center;
         will-change: transform, opacity;
+    }
+
+    .delay-container {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .delay-demo {
+        padding: 2rem;
+        background: #e6e6fa;
+        border-radius: 8px;
+        text-align: center;
+        will-change: opacity;
     }
 </style>
