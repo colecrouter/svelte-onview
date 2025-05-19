@@ -124,6 +124,7 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
 
         observer.observe(targetEl);
 
+        // Because this runs in an action (client only), it is not SSR compatible. The block below is meant to take the initial "all is visible" state, and transition it into the correct state, as set by the config.
         requestAnimationFrame(() => {
             const rect = targetEl.getBoundingClientRect();
             const viewportHeight = window.innerHeight;
@@ -147,16 +148,20 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                 // Always run the transition on mount
                 doTransition(currentState);
                 sideEffects(currentState);
+
+                if (once) observer?.disconnect();
             } else {
                 if (currentState === "in") {
                     // If the element is already in view, don't do anything
 
-                    // Manually disconnect the observer if `once` is true
                     if (once) observer?.disconnect();
                 } else if (currentState === "out") {
                     // If the element is out of view, transition it out
                     doTransition(currentState);
                     sideEffects(currentState);
+
+                    // In this case, we don't want to disconnect the observer
+                    // This would mean that the user never sees the element
                 }
             }
         });
