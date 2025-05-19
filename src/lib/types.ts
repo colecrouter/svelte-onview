@@ -11,7 +11,7 @@ export type IntersectionTransitionConfig<T extends Transition | undefined> = (T 
     ?
           | {
                 animation: T;
-                params: Parameters<T>[1];
+                params?: Parameters<T>[1];
                 threshold?: number;
             }
           | {
@@ -44,10 +44,7 @@ export type IntersectionTransitionConfig<T extends Transition | undefined> = (T 
     threshold?: number;
 };
 
-export type SveltetersectOptions<
-    InP extends Transition | undefined,
-    OutP extends Transition | undefined = undefined,
-> = (
+export type SveltersectOptions<InP extends Transition | undefined, OutP extends Transition | undefined = undefined> = (
     | {
           in?: InP extends Transition ? IntersectionTransitionConfig<InP> : never;
           out?: OutP extends Transition ? IntersectionTransitionConfig<OutP> : IntersectionTransitionConfig<InP>;
@@ -101,14 +98,14 @@ export function defineRevealOptions<InP extends Transition, OutP extends Transit
     opts: {
         in: IntersectionTransitionConfig<InP>;
         out: IntersectionTransitionConfig<OutP>;
-    } & Omit<SveltetersectOptions<InP, OutP>, "in" | "out">,
-): SveltetersectOptions<InP, OutP>;
+    } & Omit<SveltersectOptions<InP, OutP>, "in" | "out">,
+): SveltersectOptions<InP, OutP>;
 
 export function defineRevealOptions<InP extends Transition>(
     opts: {
         transition: IntersectionTransitionConfig<InP>;
-    } & Omit<SveltetersectOptions<InP, undefined>, "transition">,
-): SveltetersectOptions<InP, undefined>;
+    } & Omit<SveltersectOptions<InP, undefined>, "transition">,
+): SveltersectOptions<InP, undefined>;
 
 /**
  * A tiny wrapper so that callers never have to write
