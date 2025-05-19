@@ -109,7 +109,7 @@ export function defineRevealOptions<InP extends Transition>(
 
 /**
  * A tiny wrapper so that callers never have to write
- * `SveltetersectOptions<…, …>` by hand – TS will infer
+ * `SveltersectOptions<…, …>` by hand – TS will infer
  * both In‐ and Out‐transition types from the object literal.
  */
 export function defineRevealOptions(opts: unknown) {

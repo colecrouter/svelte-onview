@@ -2,6 +2,6 @@ export { reveal } from "./action.js";
 export {
     defineRevealOptions,
     type IntersectionTransitionConfig,
-    type SveltersectOptions as SveltetersectOptions,
+    type SveltersectOptions,
 } from "./types.js";
 export { default as Reveal } from "./Reveal.svelte";
