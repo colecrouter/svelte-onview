@@ -90,6 +90,7 @@
                 exit: resetValue,
             },
             transition: {
+                animation: fade,
                 threshold: 0.3,
             },
         }}>
