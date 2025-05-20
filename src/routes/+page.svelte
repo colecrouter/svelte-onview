@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { defineRevealOptions, reveal } from "$lib/index.js";
+    import Reveal from "$lib/Reveal.svelte";
+    import { reveal } from "$lib/index.js";
     import NumberFlow from "@number-flow/svelte";
     import { blur, fade, fly, slide } from "svelte/transition";
-    import Reveal from "$lib/Reveal.svelte";
 
     // generate some demo cards
     interface Card {
