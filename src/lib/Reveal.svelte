@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
+  import { BROWSER } from "esm-env";
   import { reveal } from "./action.js";
   import type { SveltersectOptions } from "./types.js";
 
@@ -15,7 +15,7 @@
   let opts: Props = { ...$$restProps, initial: true };
 
   // hide in SSR
-  let style = !browser ? "visibility:hidden" : undefined;
+  let style = !BROWSER ? "visibility:hidden" : undefined;
 
   // Define the target element for the reveal action
   // This is defined separately so it is reactive
