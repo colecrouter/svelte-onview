@@ -49,10 +49,11 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
 
         const cfg = state === "in" ? inCfg : outCfg;
 
-        // if no animation, always do instant hide/show
-        if (!cfg?.animation) {
-            cleanupFrame(); // cancel any prior animation
-
+        // fallback instant hide/show only when exactly one animation is defined
+        const hasInAnim = Boolean(inCfg?.animation);
+        const hasOutAnim = Boolean(outCfg?.animation);
+        const oneAnimOnly = hasInAnim !== hasOutAnim;
+        if (oneAnimOnly && !cfg?.animation) {
             if (state === "out") {
                 const prior = node.style.visibility;
                 node.style.visibility = "hidden";
@@ -63,6 +64,12 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                 node.style.visibility = "";
                 cleanupFrame = () => {};
             }
+            return;
+        }
+
+        // if no animation configured on this side (and not the one‐only case), do nothing here
+        if (!cfg?.animation) {
+            cleanupFrame = () => {};
             return;
         }
 
