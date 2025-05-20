@@ -1,8 +1,8 @@
 <script lang="ts">
-    import { defineRevealOptions, reveal } from '$lib/index.js';
-    import NumberFlow from '@number-flow/svelte';
-    import { blur, fade, fly, slide } from 'svelte/transition';
-    import Reveal from '$lib/Reveal.svelte';
+    import Reveal from "$lib/Reveal.svelte";
+    import { reveal } from "$lib/index.js";
+    import NumberFlow from "@number-flow/svelte";
+    import { blur, fade, fly, slide } from "svelte/transition";
 
     // generate some demo cards
     interface Card {
@@ -16,18 +16,18 @@
             id: i + 1,
             title: `Card #${i + 1}`,
             body:
-                'Lorem ipsum dolor sit amet, consectetur adipiscing elit. ' +
-                'Praesent vitae eros eget tellus tristique bibendum. ',
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+                "Praesent vitae eros eget tellus tristique bibendum. ",
         }));
 
     // For third part component that needs to be remounted
     let value = $state(123);
     const setValue = () => {
-        console.log('Setting value');
+        console.log("Setting value");
         value = 123;
     };
     const resetValue = () => {
-        console.log('Resetting value');
+        console.log("Resetting value");
         value = 0;
     };
 </script>
@@ -52,12 +52,13 @@
                         threshold: 1,
                     },
                     once: false,
-                    class: 'visible',
+                    class: "visible",
                     callbacks: {
-                        enter: () => console.log('Entered!'),
-                        exit: () => console.log('Exited!'),
+                        enter: () => console.log("Entered!"),
+                        exit: () => console.log("Exited!"),
                     },
-                }}>
+                }}
+            >
                 <h2>{card.title}</h2>
                 <p>{card.body}</p>
             </div>
@@ -74,7 +75,8 @@
                 threshold: 0.3,
             },
             once: true,
-        }}>
+        }}
+    >
         <h2>This fades in once!</h2>
         <p>
             It will never fade out; once you've scrolled here, it stays visible.
@@ -90,9 +92,11 @@
                 exit: resetValue,
             },
             transition: {
+                animation: fade,
                 threshold: 0.3,
             },
-        }}>
+        }}
+    >
         <h2>Number Flow Demo</h2>
         <NumberFlow {value} duration={1000} />
         <p>The number will unmount when you scroll past it.</p>
@@ -119,7 +123,8 @@
                         params: { duration: 600, delay: i * 500 },
                     },
                     // No out animation, so that it disappears immediately
-                }}>
+                }}
+            >
                 <h2>Delayed Fade Demo</h2>
                 <p>
                     This block will wait 500 ms before fading in when you scroll
@@ -135,22 +140,23 @@
         use:reveal={{
             in: {
                 animation: slide,
-                params: { axis: 'x', duration: 600 },
+                params: { axis: "x", duration: 600 },
                 threshold: 0.2,
             },
             out: {
                 animation: slide,
-                params: { axis: 'x', duration: 400 },
+                params: { axis: "x", duration: 400 },
                 threshold: 0.8,
             },
             once: false,
             initial: true,
-            class: 'visible',
+            class: "visible",
             callbacks: {
-                enter: () => console.log('Slide Demo Enter'),
-                exit: () => console.log('Slide Demo Exit'),
+                enter: () => console.log("Slide Demo Enter"),
+                exit: () => console.log("Slide Demo Exit"),
             },
-        }}>
+        }}
+    >
         <h2>Always Sliding Demo</h2>
         <p>
             This section slides in from the left on load, and will slide out as

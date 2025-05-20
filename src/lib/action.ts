@@ -3,8 +3,10 @@ import type { SveltersectOptions, Transition } from "./types.js";
 
 export function reveal<T1 extends Transition | undefined, T2 extends Transition | undefined>(
     node: HTMLElement,
-    options: SveltersectOptions<T1, T2>,
+    opts: SveltersectOptions<T1, T2>,
 ) {
+    let options = opts;
+
     // Update-able options
     let inCfg = options.in ?? options.transition;
     let outCfg = options.out ?? options.transition;
@@ -46,7 +48,23 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
         cleanupFrame();
 
         const cfg = state === "in" ? inCfg : outCfg;
-        if (!cfg?.animation) return;
+
+        // if no animation, always do instant hide/show
+        if (!cfg?.animation) {
+            cleanupFrame(); // cancel any prior animation
+
+            if (state === "out") {
+                const prior = node.style.visibility;
+                node.style.visibility = "hidden";
+                cleanupFrame = () => {
+                    node.style.visibility = prior;
+                };
+            } else {
+                node.style.visibility = "";
+                cleanupFrame = () => {};
+            }
+            return;
+        }
 
         // Perform the transition
         cleanupFrame = runTransition(node, cfg, state);
@@ -56,8 +74,7 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
     }
 
     // Add proxy element with our target inside. This is necessary because
-    // we can observe that instead, which will cause less issues with transitions
-    // using `transform`.
+    // we can observe that instead, which will cause less issues with transitions using `transform`.
     function addProxy() {
         if (!options.target) {
             proxyEl = document.createElement("div");
@@ -72,7 +89,6 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
     }
 
     // Remove the proxy element and append the original node back to its parent
-
     function removeProxy() {
         if (proxyEl?.parentNode) {
             // move node back to where the wrapper is
@@ -95,29 +111,39 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
                 throw new Error("No target element found");
             })();
 
+        let seenFirst = false;
         observer = new IntersectionObserver(
             (entries) => {
+                // IntersectionObserver immediately fires when first created, so we need to ignore that first event
+                if (!seenFirst) {
+                    seenFirst = true;
+                    return;
+                }
+
                 for (const entry of entries) {
                     const ratio = entry.intersectionRatio;
+                    // const isAboveIn = thresholdIn === 0 ? ratio > 0 : ratio >= thresholdIn;
+                    const isAboveIn = thresholdIn === 0 ? ratio > 0 : ratio >= thresholdIn;
+                    const isBelowOut = ratio <= thresholdOut;
+
+                    console.log("currentState", currentState);
+
                     let desiredState: "in" | "out" | null = null;
 
-                    if (thresholdIn === 0 ? ratio > 0 : ratio >= thresholdIn) {
-                        desiredState = "in";
-                    } else if (ratio <= thresholdOut) {
-                        desiredState = "out";
-                    } else {
-                        continue;
+                    if (currentState === "in") {
+                        // only leave "in" when we drop below the exit threshold
+                        if (isBelowOut) desiredState = "out";
+                    } else if (currentState === "out") {
+                        // only go "in" when we exceed the entry threshold
+                        if (isAboveIn) desiredState = "in";
                     }
 
-                    if (currentState === desiredState) continue;
+                    if (!desiredState || desiredState === currentState) continue;
+
                     currentState = desiredState;
-
-                    if (desiredState === "in" || desiredState === "out") {
-                        doTransition(desiredState);
-                        sideEffects(desiredState);
-
-                        if (once) observer?.disconnect();
-                    }
+                    doTransition(desiredState);
+                    sideEffects(desiredState);
+                    if (once && desiredState === "in") observer?.disconnect();
                 }
             },
             {
@@ -181,9 +207,7 @@ export function reveal<T1 extends Transition | undefined, T2 extends Transition 
 
     return {
         update(newOpts: typeof options) {
-            observer?.disconnect();
-            cleanupFrame();
-
+            options = newOpts;
             inCfg = newOpts.in ?? newOpts.transition;
             outCfg = newOpts.out ?? newOpts.transition;
             once = newOpts.once ?? false;
